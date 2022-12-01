@@ -30,7 +30,7 @@ namespace AdventCode2021
                 }
             }
 
-            Assert.AreEqual(result, 70720);
+            Assert.AreEqual(result, 67633);
         }
 
         [TestMethod]
@@ -59,7 +59,7 @@ namespace AdventCode2021
 
             result = sums.TakeLast(3).Sum();
 
-            Assert.AreEqual(result, 207148);
+            Assert.AreEqual(result, 199628);
         }
     }
 }
