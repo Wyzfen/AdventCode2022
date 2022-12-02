@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace AdventCode2021
+namespace AdventCode2022
 {
     [TestClass]
     public class Day1

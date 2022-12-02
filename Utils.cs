@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AdventCode2021
+namespace AdventCode2022
 {
     public static class Utils
     {
