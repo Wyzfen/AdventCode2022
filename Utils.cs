@@ -83,9 +83,16 @@ namespace AdventCode2022
             }
         }
 
-        public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> source, int N)
+        //public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> source, int N)
+        //{
+        //    return source.Skip(Math.Max(0, source.Count() - N));
+        //}
+
+        public static IEnumerable<IEnumerable<T>> Batch<T>(this IEnumerable<T> items, int maxItems)
         {
-            return source.Skip(Math.Max(0, source.Count() - N));
+            return items.Select((item, inx) => new { item, inx })
+                        .GroupBy(x => x.inx / maxItems)
+                        .Select(g => g.Select(x => x.item));
         }
 
         public static int ToInt(this IEnumerable<int> source) =>
