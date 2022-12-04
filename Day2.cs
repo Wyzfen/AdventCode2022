@@ -25,7 +25,7 @@ namespace AdventCode2022
         [TestMethod]
         public void Problem1()
         {           
-            int result = values.Select(v => scoreLookup[v]).Sum();
+            int result = values.Sum(v => scoreLookup[v]);
 
             Assert.AreEqual(result, 8933);
         }
@@ -45,7 +45,7 @@ namespace AdventCode2022
         [TestMethod]
         public void Problem2()
         {
-            int result = values.Select(v => playLookup[v]).Select(v => scoreLookup[v]).Sum();
+            int result = values.Select(v => playLookup[v]).Sum(v => scoreLookup[v]);
 
             Assert.AreEqual(result, 11998);
         }

@@ -83,18 +83,6 @@ namespace AdventCode2022
             }
         }
 
-        //public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> source, int N)
-        //{
-        //    return source.Skip(Math.Max(0, source.Count() - N));
-        //}
-
-        public static IEnumerable<IEnumerable<T>> Batch<T>(this IEnumerable<T> items, int maxItems)
-        {
-            return items.Select((item, inx) => new { item, inx })
-                        .GroupBy(x => x.inx / maxItems)
-                        .Select(g => g.Select(x => x.item));
-        }
-
         public static int ToInt(this IEnumerable<int> source) =>
              source.Select(d => Math.Abs(d) % 10).Aggregate(0, (t, n) => t * 10 + n);
 
@@ -105,7 +93,7 @@ namespace AdventCode2022
             input.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None).Select(i => i.Split(split)).ToDictionary(s => s[1], s => s[0]);
 
         // Group consecutive lines into array, splitting into new group on blank line
-        public static List<List<string>> MergeLines(string[] lines)
+        public static List<List<string>> MergeLines(IEnumerable<string> lines)
         {
             List<List<string>> output = new List<List<string>>();
 
