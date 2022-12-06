@@ -74,15 +74,6 @@ namespace AdventCode2022
         public static String[][] StringsFromCSVString(string input) =>
             input.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None).Select(s => s.Split(',')).ToArray();
 
-        public static IEnumerable<T> Generate<T>(T value, Func<T, T> func)
-        {
-            while (true)
-            {
-                yield return value;
-                value = func(value);
-            }
-        }
-
         public static int ToInt(this IEnumerable<int> source) =>
              source.Select(d => Math.Abs(d) % 10).Aggregate(0, (t, n) => t * 10 + n);
 
@@ -114,69 +105,6 @@ namespace AdventCode2022
             if (current.Count() > 0) output.Add(current);
 
             return output;
-        }
-
-        /// <summary>
-        /// Uses factorial notation to give all permutations of input set.
-        /// if input set is in lexigraphical order, the results will be too.
-        /// ie, pass in 012 (the lowest combination of 0,1 and 2) and the next one will be 021
-        /// </summary>
-        /// <param name="set"></param>
-        /// <returns></returns>
-        public static IEnumerable<List<int>> Permutations(IEnumerable<int> set)
-        {
-            int count = set.Count();
-            ulong number = Factorial(count);
-            int[] factors = new int[count];
-
-            for (ulong n = 0; n < number; n++)
-            {
-                List<int> workingSet = new List<int>(set);
-                List<int> result = new List<int>();
-
-                for (int i = count - 1; i >= 0; i--)
-                {
-                    int j = factors[i];
-                    result.Add(workingSet[j]);
-                    workingSet.RemoveAt(j);
-                }
-
-                yield return result;
-
-                for (int index = 1; index < count; index++)
-                {
-                    factors[index]++;
-                    if (factors[index] <= index) break;
-
-                    factors[index] = 0;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Select (choose) from (set) where order doesnt matter
-        /// </summary>
-        /// <param name="set"></param>
-        /// <param name="choose"></param>
-        /// <returns></returns>
-        public static IEnumerable<List<T>> Combinations<T>(IEnumerable<T> input, int choose)
-        {
-            List<T> set = new List<T>(input);
-            for (int i = 0; i < set.Count(); i++)
-            {
-                // only want 1 character, just return this one
-                if (choose == 1)
-                    yield return new List<T>(new T[] { set[i] });
-
-                // want more than one character, return this one plus all combinations one shorter
-                // only use characters after the current one for the rest of the combinations
-                else
-                    foreach (List<T> next in Combinations(set.GetRange(i + 1, set.Count - (i + 1)), choose - 1))
-                    {
-                        next.Add(set[i]);
-                        yield return next;
-                    }
-            }
         }
 
         public static ulong Factorial(int n)
@@ -236,6 +164,7 @@ namespace AdventCode2022
             second = list.Count > 1 ? list[1] : default;
             rest = list.Skip(2).ToList();
         }
+
     }
 
     public class MultiMap<V> : Dictionary<string, List<V>>
@@ -271,4 +200,83 @@ namespace AdventCode2022
         }
     }
 
+    public static class LinqExtensions
+    {        
+        public static IEnumerable<IEnumerable<T>> Sliding<T>(this IEnumerable<T> input, int length) => Enumerable.Range(length, input.Count() - length).Select(i => input.Skip(i - length).Take(length));
+
+        public static int FirstIndex<T>(this IEnumerable<T> input, Func<T, bool> predicate) => input.Select((value, index) => (value, index)).Where(p => predicate(p.value)).Select(p => p.index).First();
+
+
+        /// <summary>
+        /// Uses factorial notation to give all permutations of input set.
+        /// if input set is in lexigraphical order, the results will be too.
+        /// ie, pass in 012 (the lowest combination of 0,1 and 2) and the next one will be 021
+        /// </summary>
+        /// <param name="set"></param>
+        /// <returns></returns>
+        public static IEnumerable<List<int>> Permutations(IEnumerable<int> set)
+        {
+            int count = set.Count();
+            ulong number = Utils.Factorial(count);
+            int[] factors = new int[count];
+
+            for (ulong n = 0; n < number; n++)
+            {
+                List<int> workingSet = new List<int>(set);
+                List<int> result = new List<int>();
+
+                for (int i = count - 1; i >= 0; i--)
+                {
+                    int j = factors[i];
+                    result.Add(workingSet[j]);
+                    workingSet.RemoveAt(j);
+                }
+
+                yield return result;
+
+                for (int index = 1; index < count; index++)
+                {
+                    factors[index]++;
+                    if (factors[index] <= index) break;
+
+                    factors[index] = 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Select (choose) from (set) where order doesnt matter
+        /// </summary>
+        /// <param name="set"></param>
+        /// <param name="choose"></param>
+        /// <returns></returns>
+        public static IEnumerable<List<T>> Combinations<T>(IEnumerable<T> input, int choose)
+        {
+            List<T> set = new List<T>(input);
+            for (int i = 0; i < set.Count(); i++)
+            {
+                // only want 1 character, just return this one
+                if (choose == 1)
+                    yield return new List<T>(new T[] { set[i] });
+
+                // want more than one character, return this one plus all combinations one shorter
+                // only use characters after the current one for the rest of the combinations
+                else
+                    foreach (List<T> next in Combinations(set.GetRange(i + 1, set.Count - (i + 1)), choose - 1))
+                    {
+                        next.Add(set[i]);
+                        yield return next;
+                    }
+            }
+        }
+
+        public static IEnumerable<T> Generate<T>(T value, Func<T, T> func)
+        {
+            while (true)
+            {
+                yield return value;
+                value = func(value);
+            }
+        }
+    }
 }

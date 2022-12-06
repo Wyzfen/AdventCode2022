@@ -13,8 +13,8 @@ namespace AdventCode2022
 
         [TestMethod]
         public void Problem1()
-        {           
-            int result = Enumerable.Range(4, values.Length - 4).First(i => values.Substring(i - 4, 4).Distinct().Count() == 4);
+        {
+            int result = values.Sliding(4).FirstIndex(v => v.Distinct().Count() == v.Count()) + 4;
 
             Assert.AreEqual(result, 1929);
         }
@@ -22,8 +22,7 @@ namespace AdventCode2022
         [TestMethod]
         public void Problem2()
         {
-            int result = Enumerable.Range(14, values.Length - 14).First(i => values.Substring(i - 14, 14).Distinct().Count() == 14);
-
+            int result = values.Sliding(14).FirstIndex(v => v.Distinct().Count() == v.Count()) + 14;
 
             Assert.AreEqual(result, 3298);
         }
