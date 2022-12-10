@@ -93,7 +93,7 @@ namespace AdventCode2022
                 }
             }
 
-            string result = "ZKJFBJFZ";
+            string result = Utils.FromAlphabet6(output);
             Assert.AreEqual(result, "ZKJFBJFZ");
         }
     }

@@ -165,6 +165,46 @@ namespace AdventCode2022
             rest = list.Skip(2).ToList();
         }
 
+        public static string FromAlphabet6(string[] input, char set = '#', char unset = '.')
+        {
+            if (input == null || input.Length != 6) return "";
+            
+            int length = input[0].Length;
+            if (!input.Select(l => l.Length).All(l => l == input[0].Length)) return "";
+
+            Dictionary<string, string> alphabet6 = new()
+                        {
+                            {".##.\n#..#\n#..#\n####\n#..#\n#..#", "A"},
+                            {"###.\n#..#\n###.\n#..#\n#..#\n###.", "B"},
+                            {".##.\n#..#\n#...\n#...\n#..#\n.##.", "C"},
+                            {"####\n#...\n###.\n#...\n#...\n####", "E"},
+                            {"####\n#...\n###.\n#...\n#...\n#...", "F"},
+                            {".##.\n#..#\n#...\n#.##\n#..#\n.###", "G"},
+                            {"#..#\n#..#\n####\n#..#\n#..#\n#..#", "H"},
+                            {".###\n..#.\n..#.\n..#.\n..#.\n.###", "I"},
+                            {"..##\n...#\n...#\n...#\n#..#\n.##.", "J"},
+                            {"#..#\n#.#.\n##..\n#.#.\n#.#.\n#..#", "K"},
+                            {"#...\n#...\n#...\n#...\n#...\n####", "L"},
+                            {".##.\n#..#\n#..#\n#..#\n#..#\n.##.", "O"},
+                            {"###.\n#..#\n#..#\n###.\n#...\n#...", "P"},
+                            {"###.\n#..#\n#..#\n###.\n#.#.\n#..#", "R"},
+                            {".###\n#...\n#...\n.##.\n...#\n###.", "S"},
+                            {"#..#\n#..#\n#..#\n#..#\n#..#\n.##.", "U"},
+                            {"#...\n#...\n.#.#\n..#.\n..#.\n..#.", "Y"},
+                            {"####\n...#\n..#.\n.#..\n#...\n####", "Z"}
+                        };
+
+            string result = "";
+
+            for(int x = 0; x < length; x += 5)
+            {
+                var character = string.Join('\n', input.Select(l => l.Substring(x, 4)));
+                
+                result += alphabet6.TryGetValue(character, out string output) ? output : "?";
+            }
+
+            return result;
+        }
     }
 
     public class MultiMap<V> : Dictionary<string, List<V>>
