@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -224,7 +225,10 @@ namespace AdventCode2022
     }
 
     [TypeConverter(typeof(Vector2Converter))]
-    public record struct Vector2(int X, int Y);
+    public record struct Vector2(int X, int Y)
+    {
+        public static Vector2 operator +(Vector2 a, Vector2 b) => new(a.X + b.X, a.Y + b.Y);
+    }
 
     public class Vector2Converter : TypeConverter
     { 
