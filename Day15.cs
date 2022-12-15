@@ -33,15 +33,22 @@ namespace AdventCode2022
             public int Length { get => End - Start + 1; } // inclusive
         }
 
+        public List<(Vector2 scanner, Vector2 beacon)> ParseInput() => values.Select(v => v
+                                                                                .Split(':')
+                                                                                .Select(Utils.ValueFromString<Vector2>)
+                                                                                .Chunk(2).Select(p => (p.First(), p.Last()))
+                                                                                .First())
+                                                                              .ToList();
+
         [TestMethod]
         public void Problem1()
         {
-            var input = values.Select(v => v.Split(':').Select(Utils.ValueFromString<Vector2>).ToList()).ToList();
-            var beacons = input.Select(v => v[1]).Distinct().ToList();
+            var input = ParseInput();
+            var beacons = input.Select(v => v.beacon).Distinct().ToList();
                         
             List<Range> ranges = new();
 
-            foreach (var (scanner, beacon, _) in input)
+            foreach (var (scanner, beacon) in input)
             {
                 int distance = Math.Abs(scanner.X - beacon.X) + Math.Abs(scanner.Y - beacon.Y);
                 int offset = Math.Abs(scanner.Y - 2000000);
@@ -65,15 +72,14 @@ namespace AdventCode2022
         [TestMethod]
         public void Problem2()
         {
-            var input = values.Select(v => v.Split(':').Select(Utils.ValueFromString<Vector2>).ToList()).ToList();
-            var beacons = input.Select(v => v[1]).Distinct().ToList();
+            var input = ParseInput();
 
             const int size = 4000000;
             for (int y = 0; y < size; y++)
             {
                 List<Range> ranges = new();
 
-                foreach (var (scanner, beacon, _) in input)
+                foreach (var (scanner, beacon) in input)
                 {
                     int distance = Math.Abs(scanner.X - beacon.X) + Math.Abs(scanner.Y - beacon.Y);
                     int offset = Math.Abs(scanner.Y - y);
@@ -81,25 +87,22 @@ namespace AdventCode2022
                     {
                         Range range = new(Math.Max(0, scanner.X - (distance - offset)), Math.Min(size, scanner.X + (distance - offset)));
                         if (range.Start > size || range.End < 0) continue;
-
-                        var overlaps = ranges.Where(r => range.Overlaps(r));
-                        range = overlaps.Aggregate(range, Range.Combine);
-
-                        ranges = ranges.Except(overlaps).ToList();
+                       
                         ranges.Add(range);
                     }
                 }
 
+                int current = 0;
+                foreach(var range in ranges.OrderBy(r => r.Start))
+                {
+                    if(range.Start - current > 1)
+                    {
+                        long result = (current + 1) * (long)size + y;
+                        Assert.AreEqual(result, 11747175442119);
+                        return;
+                    }
 
-                if (ranges.Count > 1)
-                {
-                    long result = (ranges[0].End + 1) * (long)size + y;
-                    Assert.AreEqual(result, 11747175442119);
-                    break;
-                } 
-                else if (ranges[0].Start > 0 || ranges[0].End < size)
-                {
-                    // If hit edges
+                    current = Math.Max(current, range.End);
                 }
             }
 
