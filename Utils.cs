@@ -17,7 +17,7 @@ namespace AdventCode2022
         public static IEnumerable<(T, U)> FromFile<T, U>(string filename, string split = " ") =>
             File.ReadAllLines(filename, Encoding.UTF8).Select(s => FromString<T, U>(s, split));
 
-        public static IEnumerable<T> FromString<T>(string str, string split = " ") =>
+        public static IEnumerable<T> FromString<T>(string str, params string[] split) =>
            SplitClean(str, split).Select(s => ValueFromString<T>(s));
 
         public static (T, U) FromString<T, U>(string mystring, string split = " ")
@@ -26,12 +26,18 @@ namespace AdventCode2022
             return (ValueFromString<T>(p[0]), ValueFromString<U>(p[1]));
         }
 
-        private static string[] SplitClean(string mystring, string split = " ") => mystring.Trim().Split(new[] { split }, StringSplitOptions.RemoveEmptyEntries).ToArray();
+        private static string[] SplitClean(string mystring, params string [] split) => mystring.Trim().Split(split, StringSplitOptions.RemoveEmptyEntries).ToArray();
 
-        public static (T, U, V) FromString<T, U, V>(string mystring, string split = " ")
+        public static (T, U, V) FromString<T, U, V>(string mystring, params string[] split)
         {
             var p = SplitClean(mystring, split);
             return (ValueFromString<T>(p[0]), ValueFromString<U>(p[1]), ValueFromString<V>(p[2]));
+        }
+
+        public static (T, U, V, W) FromString<T, U, V, W>(string mystring, params string [] split)
+        {
+            var p = SplitClean(mystring, split);
+            return (ValueFromString<T>(p[0]), ValueFromString<U>(p[1]), ValueFromString<V>(p[2]), ValueFromString<W>(p[3]));
         }
 
         public static T ValueFromString<T>(string mystring)
@@ -237,8 +243,16 @@ namespace AdventCode2022
         {
             if (value is string str)
             {
-                (int x, int y) = Utils.FromString<int, int>(str, ",");
-                return new Vector2(x, y);
+                if (str.Contains('=')) // x = 1, y = 2
+                {
+                    (_, int x, _, int y) = Utils.FromString<string, int, string, int>(str, "=", ",");
+                    return new Vector2(x, y);
+                }
+                else // 1, 2
+                {
+                    (int x, int y) = Utils.FromString<int, int>(str, ",");
+                    return new Vector2(x, y);
+                }
             }
             return base.ConvertFrom(context, culture, value);
         }
