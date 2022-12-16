@@ -272,7 +272,7 @@ namespace AdventCode2022
         /// </summary>
         /// <param name="set"></param>
         /// <returns></returns>
-        public static IEnumerable<List<int>> Permutations(IEnumerable<int> set)
+        public static IEnumerable<List<int>> Permutations(this IEnumerable<int> set)
         {
             int count = set.Count();
             ulong number = Utils.Factorial(count);
@@ -308,7 +308,7 @@ namespace AdventCode2022
         /// <param name="set"></param>
         /// <param name="choose"></param>
         /// <returns></returns>
-        public static IEnumerable<List<T>> Combinations<T>(IEnumerable<T> input, int choose)
+        public static IEnumerable<List<T>> Combinations<T>(this IEnumerable<T> input, int choose)
         {
             List<T> set = new List<T>(input);
             for (int i = 0; i < set.Count(); i++)
