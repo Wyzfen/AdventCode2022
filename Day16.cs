@@ -57,17 +57,17 @@ namespace AdventCode2022
             return maxPressure;
         }
 
-        static int Traverse2(List<Node> nodes, int current, int elephant, IEnumerable<int> queue, int[,] times, int pressure, int time, int elephantTime, int totalTime)
+        static int Traverse2(int person, int personTime, int elephant, int elephantTime, int[] queue, int pressure, int totalTime, List<Node> nodes, int[,] times)
         {
-            if (time >= totalTime && elephantTime >= totalTime) return pressure;
+            if (personTime >= totalTime || elephantTime >= totalTime) return pressure;
 
             int maxPressure = pressure;
 
-            int thisTime = time;
-            int thisNode = current;
+            int thisTime = personTime;
+            int thisNode = person;
             bool isElephant = false;
 
-            if(elephantTime < time)
+            if(elephantTime < personTime)
             {
                 thisTime = elephantTime;
                 thisNode = elephant;
@@ -81,11 +81,11 @@ namespace AdventCode2022
                 if (newTime >= totalTime) continue;
 
                 var newPressure = pressure + nodes[node].Rate * (totalTime - newTime);
-                var newQueue = queue.Except(new[] { node }).ToList();
+                var newQueue = queue.Except(new[] { node }).ToArray();
 
                 var totalPressure = isElephant ?
-                    Traverse2(nodes, current, node, newQueue, times, newPressure, time, newTime, totalTime) :
-                    Traverse2(nodes, node, elephant, newQueue, times, newPressure, newTime, elephantTime, totalTime);
+                    Traverse2(person, personTime, node, newTime, newQueue, newPressure, totalTime, nodes, times) :
+                    Traverse2(node, newTime, elephant, elephantTime, newQueue, newPressure, totalTime, nodes, times);
                 maxPressure = Math.Max(maxPressure, totalPressure);
             }
 
@@ -171,7 +171,7 @@ namespace AdventCode2022
             // Traverse only between points of interest; and remove them once visited, as no point going back. (Note, the path might lead back, but we're not stopping there)
             var usefulNodes = nodes.Select((n, i) => (node: n, index: i)).Where(n => n.node.Rate > 0).Select(n => n.index).ToList();
             var startNode = nodes.FirstIndex(n => n.Location == "AA");
-            int result = Traverse2(nodes, startNode, startNode, usefulNodes.ToArray(), distances, 0, 0, 0, 26);
+            int result = Traverse2(startNode, 0, startNode, 0, usefulNodes.ToArray(), 0, 26, nodes, distances);
 
             Assert.AreEqual(result, 2382);
         }
