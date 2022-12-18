@@ -32,13 +32,17 @@ namespace AdventCode2022
         int floor = 0b111111111;
         int wall = 0b100000001;
 
-        long FallRocks(string gusts, long count)
+        record State(int rock, int gust, int offset);
+
+        List<State> history = new();
+        
+        long FallRocks(string gusts, long count, int gustIndex = 0, int currentRock = 0, int[] start = null)
         {
             List<int> levels = new() { floor };
-            
-            int currentRock = 0;
-            int gustIndex = 0;
-            int height = 0;
+            if(start != null)
+            {
+                levels.InsertRange(0, start);
+            }
 
             for (long i = 0; i < count; i++)
             {
@@ -49,7 +53,7 @@ namespace AdventCode2022
 
                 do
                 {
-                    switch (gusts[gustIndex++ % gusts.Length])
+                    switch (gusts[gustIndex])
                     {
                         case '<':
                             if (piece.Zip(levels.Skip(offset)).All(p => ((p.First << 1) & p.Second) == 0))
@@ -65,6 +69,7 @@ namespace AdventCode2022
                             break;
                     }
 
+                    gustIndex = (gustIndex + 1) % gusts.Length;
                     offset++;
                 } while (piece.Zip(levels.Skip(offset)).All(p => (p.First & p.Second) == 0));
 
@@ -73,17 +78,24 @@ namespace AdventCode2022
                     levels[offset + k - 1] |= piece[k];
                 }
 
+                var state = new State(currentRock, gustIndex, offset);
+                if(history.Contains(state))
+                {
+                    Console.WriteLine($"State ({currentRock}, {gustIndex}, {offset}) seen before at {history.IndexOf(state)}. CurrentIndex = {i}");
+                }
+                history.Add(state);
+
                 levels.RemoveAll(x => x == wall);
                 currentRock = (currentRock + 1) % 5;
             }
 
 
-            return levels.Count - 1 + height;
+            return levels.Count - 1;
         }
 
         [TestMethod]
         public void Problem1()
-        {           
+        {
             long result = FallRocks(values, 2022);
 
             Assert.AreEqual(result, 3181);
@@ -92,10 +104,19 @@ namespace AdventCode2022
         [TestMethod]
         public void Problem2()
         {
-            long result = FallRocks(test, 1000000000000);
+            // Repeats after 1913 rows.
+            // 1914th row is same as 188th row
+            // height difference is 2709
+            long result = FallRocks(values, 1913);
+            
+            // (10^12 - 1913) / (1913-188) = 579710143 copies
+            result += 2709 * (long)579710143;
+            
+            // remainder is 1412. use previous gustIndex, rockIndex, and last 3 levels.
+            // Sum is -3, to discard extra three levels added
+            result += FallRocks(values, 1412, 1127, 3, new[] { 289, 297, 509 }) - 3; // will repeat from 188
 
-
-            Assert.AreEqual(result, 4267809);
+            Assert.AreEqual(result, 1570434782634);
         }
     }
 }
