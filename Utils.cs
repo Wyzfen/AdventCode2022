@@ -40,6 +40,18 @@ namespace AdventCode2022
             return (ValueFromString<T>(p[0]), ValueFromString<U>(p[1]), ValueFromString<V>(p[2]), ValueFromString<W>(p[3]));
         }
 
+        public static (T, U, V, W, X) FromString<T, U, V, W, X>(string mystring, params string[] split)
+        {
+            var p = SplitClean(mystring, split);
+            return (ValueFromString<T>(p[0]), ValueFromString<U>(p[1]), ValueFromString<V>(p[2]), ValueFromString<W>(p[3]), ValueFromString<X>(p[4]));
+        }
+
+        public static (T, U, V, W, X, Y) FromString<T, U, V, W, X, Y>(string mystring, params string[] split)
+        {
+            var p = SplitClean(mystring, split);
+            return (ValueFromString<T>(p[0]), ValueFromString<U>(p[1]), ValueFromString<V>(p[2]), ValueFromString<W>(p[3]), ValueFromString<X>(p[4]), ValueFromString<Y>(p[5]));
+        }
+
         public static T ValueFromString<T>(string mystring)
         {
             var foo = TypeDescriptor.GetConverter(typeof(T));
@@ -252,6 +264,34 @@ namespace AdventCode2022
                 {
                     (int x, int y) = Utils.FromString<int, int>(str, ",");
                     return new Vector2(x, y);
+                }
+            }
+            return base.ConvertFrom(context, culture, value);
+        }
+    }
+
+    [TypeConverter(typeof(Vector3Converter))]
+    public record struct Vector3(int X, int Y, int Z)
+    {
+        public static Vector3 operator +(Vector3 a, Vector3 b) => new(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+    }
+
+    public class Vector3Converter : TypeConverter
+    {
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) => sourceType == typeof(String);
+        public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value)
+        {
+            if (value is string str)
+            {
+                if (str.Contains('=')) // x = .., y = .., z = ..
+                {
+                    (_, int x, _, int y, _, int z) = Utils.FromString<string, int, string, int, string, int>(str, "=", ",");
+                    return new Vector3(x, y, z);
+                }
+                else // 1, 2
+                {
+                    (int x, int y, int z) = Utils.FromString<int, int, int>(str, ",");
+                    return new Vector3(x, y, z);
                 }
             }
             return base.ConvertFrom(context, culture, value);
