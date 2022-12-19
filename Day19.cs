@@ -129,7 +129,7 @@ namespace AdventCode2022
             #endregion
 
             #region Ore
-            if (state.oreRobots < new[] { blueprint.oreRobotOre, blueprint.clayRobotOre, blueprint.obsidianRobotOre, blueprint.geodeRobotOre }.Max())
+            if (state.oreRobots < blueprint.oreRobotOre || state.oreRobots < blueprint.clayRobotOre || state.oreRobots < blueprint.obsidianRobotOre || state.oreRobots < blueprint.geodeRobotOre)
             {
                 time = CalculateTime(state.ore, blueprint.oreRobotOre, state.oreRobots);
                 if (time != int.MaxValue && state.minutes + time < maxMinutes)
@@ -157,9 +157,7 @@ namespace AdventCode2022
         public void Problem1()
         {
             var blueprints = ParseInput(values);
-            var results = blueprints.Select(b => RunBlueprint(b, new State(0, 0, 0, 0, 1, 0, 0, 0, 0), 24)).ToList();
-            var zip = blueprints.Zip(results).ToList();
-
+            var results = blueprints.Select(b => RunBlueprint(b, new State(0, 0, 0, 0, 1, 0, 0, 0, 0), 24));
             int result = results.Select((g, i) => (i + 1) * g.geodes).Sum();
 
             Assert.AreEqual(result, 1528);
@@ -169,7 +167,7 @@ namespace AdventCode2022
         public void Problem2()
         {
             var blueprints = ParseInput(values).Take(3).ToList();
-            var results = blueprints.Select(b => RunBlueprint(b, new State(0, 0, 0, 0, 1, 0, 0, 0, 0), 32).geodes).ToList();
+            var results = blueprints.Select(b => RunBlueprint(b, new State(0, 0, 0, 0, 1, 0, 0, 0, 0), 32).geodes);
 
             int result = results.Aggregate(1, (a, b) => a * b);
 
