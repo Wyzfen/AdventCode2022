@@ -167,9 +167,9 @@ namespace AdventCode2022
         public void Problem2()
         {
             var blueprints = ParseInput(values).Take(3).ToList();
-            var results = blueprints.Select(b => RunBlueprint(b, new State(0, 0, 0, 0, 1, 0, 0, 0, 0), 32).geodes);
+            var results =  blueprints.AsParallel().Select(b => RunBlueprint(b, new State(0, 0, 0, 0, 1, 0, 0, 0, 0), 32)).ToList();
 
-            int result = results.Aggregate(1, (a, b) => a * b);
+            int result = results.Aggregate(1, (a, b) => a * b.geodes);
 
             Assert.AreEqual(result, 16926);
         }
