@@ -55,17 +55,21 @@ namespace AdventCode2022
             return output.Select(s => new String(s)).ToArray();
         }
 
-        bool RunAutomata(List<Vector2> input, Direction direction)
+        bool RunAutomata(List<Vector2> input, bool[,] map, Direction direction)
         {
             var output = new List<Vector2>();
-            var targets = new Dictionary<Vector2, Vector2>();
+            var targets = new Dictionary<Vector2, int>();
             var collisions = new HashSet<Vector2>();
 
-            int Neighbours(Vector2 target) => input.Where(i => Math.Abs(i.X - target.X) <= 1 && Math.Abs(i.Y - target.Y) <= 1).Count() - 1; // -1 to remove self
-            
-            foreach(var elf in input)
+            bool Neighbours(Vector2 target) => map[target.Y, target.X - 1] || map[target.Y - 1, target.X - 1] || map[target.Y + 1, target.X - 1] ||
+                                               map[target.Y, target.X + 1] || map[target.Y - 1, target.X + 1] || map[target.Y + 1, target.X + 1] ||
+                                               map[target.Y + 1, target.X] || map[target.Y - 1, target.X];
+
+            for(int index = 0; index < input.Count; index++)
             {
-                if (Neighbours(elf) == 0) continue;
+                var elf = input[index];
+
+                if (!Neighbours(elf)) continue;
                 
                 for (int i = 0; i < 4; i++)
                 {
@@ -74,19 +78,19 @@ namespace AdventCode2022
                     switch(dir)
                     {
                         case Direction.North:
-                            if (input.Any(i => Math.Abs(i.X - elf.X) <= 1 && i.Y == elf.Y - 1)) continue;
+                            if (map[elf.Y - 1, elf.X - 1] || map[elf.Y - 1, elf.X] || map[elf.Y - 1, elf.X + 1]) continue;
                             target = new Vector2(elf.X, elf.Y - 1);
                             break;
                         case Direction.South:
-                            if (input.Any(i => Math.Abs(i.X - elf.X) <= 1 && i.Y == elf.Y + 1)) continue;
+                            if (map[elf.Y + 1, elf.X - 1] || map[elf.Y + 1, elf.X] || map[elf.Y + 1, elf.X + 1]) continue;
                             target = new Vector2(elf.X, elf.Y + 1);
                             break;
                         case Direction.West:
-                            if (input.Any(i => Math.Abs(i.Y - elf.Y) <= 1 && i.X == elf.X - 1)) continue;
+                            if (map[elf.Y - 1, elf.X - 1] || map[elf.Y, elf.X - 1] || map[elf.Y + 1, elf.X - 1]) continue;
                             target = new Vector2(elf.X - 1, elf.Y);
                             break;
                         case Direction.East:
-                            if (input.Any(i => Math.Abs(i.Y - elf.Y) <= 1 && i.X == elf.X + 1)) continue;
+                            if (map[elf.Y - 1, elf.X + 1] || map[elf.Y, elf.X + 1] || map[elf.Y + 1, elf.X + 1]) continue;
                             target = new Vector2(elf.X + 1, elf.Y);
                             break;
                     }
@@ -102,17 +106,20 @@ namespace AdventCode2022
                     }
                     else
                     {
-                        targets[target] = elf;                        
+                        targets[target] = index;                        
                     }
 
                     break;
                 }
             }
 
-            foreach(var (dest, source) in targets)
+            foreach(var (dest, index) in targets)
             {
-                input.Remove(source);
-                input.Add(dest);
+                var source = input[index];
+                input[index] = dest;
+
+                map[source.Y, source.X] = false;
+                map[dest.Y, dest.X] = true;
             }
 
             return targets.Count > 0 || collisions.Count > 0;
@@ -122,26 +129,20 @@ namespace AdventCode2022
         public void Problem1()
         {
             var elves = ParseInput(values);
+            var bounds = elves.Bounds();
+            
+            var map = new bool[bounds.Height * 3, bounds.Width * 3];
+            
+            elves = elves.Select(e => e + bounds.Size).ToList();
+            elves.ForEach(e => map[e.Y, e.X] = true);
 
             Direction direction = Direction.North;
             int count = 0;
-            while (RunAutomata(elves, direction++) && count++ < 9) ;
-            //{
-            //    Console.WriteLine($"Pass #{count}");
-            //    foreach (var line in Map(elves))
-            //    {
-            //        Console.WriteLine(line);
-            //    }
-            //    Console.WriteLine();
-            //}
+            while (RunAutomata(elves, map, direction++) && count++ < 9) ;
 
+            bounds = elves.Bounds();
 
-            int minX = elves.Min(e => e.X);
-            int maxX = elves.Max(e => e.X);
-            int minY = elves.Min(e => e.Y);
-            int maxY = elves.Max(e => e.Y);
-
-            int result = (maxX - minX + 1) * (maxY - minY + 1) - elves.Count;
+            int result = bounds.Width * bounds.Height - elves.Count;
 
             Assert.AreEqual(result, 3920);
         }
@@ -150,15 +151,19 @@ namespace AdventCode2022
         public void Problem2()
         {
             var elves = ParseInput(values);
+            var bounds = elves.Bounds();
+
+            var map = new bool[bounds.Height * 3, bounds.Width * 3];
+
+            elves = elves.Select(e => e + bounds.Size).ToList();
+            elves.ForEach(e => map[e.Y, e.X] = true);
 
             Direction direction = Direction.North;
-            int count = 1;
-            while (RunAutomata(elves, direction++))
+            int result = 1;            
+            while (RunAutomata(elves, map, direction++))
             {
-                count++;
+                result++;
             }
-            
-            int result = count;
 
             Assert.AreEqual(result, 889);
         }

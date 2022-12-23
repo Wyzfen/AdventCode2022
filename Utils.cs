@@ -246,6 +246,9 @@ namespace AdventCode2022
     public record struct Vector2(int X, int Y)
     {
         public static Vector2 operator +(Vector2 a, Vector2 b) => new(a.X + b.X, a.Y + b.Y);
+
+        public static Vector2 One { get; } = new Vector2(1, 1);
+        public static Vector2 Zero { get; } = new Vector2(0, 0);
     }
 
     public class Vector2Converter : TypeConverter
@@ -274,6 +277,7 @@ namespace AdventCode2022
     public record struct Vector3(int X, int Y, int Z)
     {
         public static Vector3 operator +(Vector3 a, Vector3 b) => new(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+        
     }
 
     public class Vector3Converter : TypeConverter
@@ -296,6 +300,26 @@ namespace AdventCode2022
             }
             return base.ConvertFrom(context, culture, value);
         }
+    }
+
+    public record struct Rectangle(int X, int Y, int Width, int Height)
+    {
+        public static Rectangle Bounds(IEnumerable<Vector2> points)
+        {
+            int minX = points.Min(e => e.X);
+            int maxX = points.Max(e => e.X);
+            int minY = points.Min(e => e.Y);
+            int maxY = points.Max(e => e.Y);
+
+            return new Rectangle(minX, minY, (maxX - minX + 1), (maxY - minY + 1));
+        }
+
+        public Vector2 Size => new (Width, Height);
+    }
+
+    public static class VectorExtensions
+    {
+        public static Rectangle Bounds(this IEnumerable<Vector2> points) => Rectangle.Bounds(points);
     }
 
     public static class LinqExtensions
